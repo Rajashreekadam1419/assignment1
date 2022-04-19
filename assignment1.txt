@@ -1,0 +1,160 @@
+
+Question 1
+
+category CRUD operation
+
+1)controller class
+
+package com.testspring.basicMicroserviceProject;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("api")
+public class CategoryCon {
+	
+	
+@Autowired     
+	
+	public SessionFactory factory;
+	
+	List<Category> list;
+	
+	CategoryCon()
+	{
+		
+		System.out.println("constructor is called in given class");
+		
+	}
+	
+	@PostConstruct//
+	void init()
+	{
+		getLatestData();
+	}
+	
+	
+	void getLatestData()
+	{
+		Session session=factory.openSession();
+		
+		Query query=session.createQuery("from Category");
+		
+		list=query.list();
+		
+		System.out.println("Init method is called data from database");
+		
+		System.out.println(list);
+	}
+	
+	@GetMapping("categories")
+	List<Category>  allCategory()
+	{
+		return list;
+		
+	}
+  @GetMapping("Category/{category_id}")
+   Category getCategory(@PathVariable int category_id)
+   {
+	  Category cat=null;
+		for(Category cate:list)
+		{
+			if(cate.category_id==category_id)
+			{
+				System.out.println(cate);
+				cat=cate;
+				
+				
+			}
+		}
+		return cat;
+   }
+  
+  @PostMapping("categories")
+	List<Category>  addCategory(@RequestBody Category category)
+	{
+		list.add(category);
+		System.out.println(list);
+		return list;
+		
+
+}
+  @PutMapping("categories")
+	String updateStudent(@RequestBody Category category)
+	{
+		Category cat=null;
+		for(Category cate:list)
+		{
+			if(cate.category_id==category.category_id)
+			{
+				cat=category;
+			}
+		}
+		cat.setCategory_name(category.category_name);
+		System.out.println(list);
+		return "category_name updated in arraylist";
+}
+}
+
+2)pojo class
+package com.testspring.basicMicroserviceProject;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Category {
+	
+	@Id
+	int category_id;
+	String category_name;
+	
+	Category()
+	{
+		
+	}
+	
+	public Category(int category_id, String category_name) {
+		super();
+		this.category_id = category_id;
+		this.category_name = category_name;
+	}
+	
+	
+	
+	public int getCategory_id() {
+		return category_id;
+	}
+	public void setCategory_id(int category_id) {
+		this.category_id = category_id;
+	}
+	public String getCategory_name() {
+		return category_name;
+	}
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
+	
+	
+	
+	@Override
+	public String toString() {
+		return "Category [category_id=" + category_id + ", category_name=" + category_name + "]";
+	}
+
+}
+
